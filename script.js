@@ -1,6 +1,6 @@
 ```javascript
 /* ==========================================
-   SENTINEL SECURITY
+   SENTINEL // HOME SECURITY
    Camera Controller
 ========================================== */
 
@@ -32,22 +32,21 @@ function updateClock() {
 
     const now = new Date();
 
-    const time = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-    });
+    document.getElementById("currentTime").textContent =
+        now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        });
 
-    const date = now.toLocaleDateString([], {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-
-    document.getElementById("currentTime").textContent = time;
-    document.getElementById("currentDate").textContent = date;
+    document.getElementById("currentDate").textContent =
+        now.toLocaleDateString([], {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
 }
 
 updateClock();
@@ -56,118 +55,30 @@ setInterval(updateClock, 1000);
 
 
 /* ==========================================
-   START CAMERA
+   UI STATE
 ========================================== */
 
-async function startCamera() {
+function setCameraOnline() {
 
-    try {
+    cameraStatus.textContent = "LIVE";
 
-        /*
-         * Ask the browser for camera access.
-         *
-         * We deliberately request video only.
-         * No microphone is required.
-         */
+    statusDot.parentElement.classList.add("live");
 
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "user"
-            },
-            audio: false
-        });
+    recordIndicator.classList.add("live");
 
+    feedState.textContent = "LIVE";
 
-        /*
-         * Attach the camera stream
-         * directly to the video element.
-         */
+    cameraCardStatus.textContent = "Online";
 
-        video.srcObject = cameraStream;
+    cameraIndicator.style.background = "var(--accent)";
 
-        video.style.display = "block";
+    startButton.disabled = true;
 
-        placeholder.style.display = "none";
-
-
-        /* Update interface */
-
-        cameraStatus.textContent = "LIVE";
-
-        statusDot.parentElement.classList.add("live");
-
-        recordIndicator.classList.add("live");
-
-        feedState.textContent = "LIVE";
-
-        cameraCardStatus.textContent = "Online";
-
-        cameraIndicator.style.background = "var(--accent)";
-
-
-        /* Button states */
-
-        startButton.disabled = true;
-        stopButton.disabled = false;
-
-
-    } catch (error) {
-
-        console.error("Camera error:", error);
-
-
-        /*
-         * Handle common browser permission errors.
-         */
-
-        if (error.name === "NotAllowedError") {
-
-            alert(
-                "Camera access was denied.\n\n" +
-                "Please allow camera access in your browser settings and try again."
-            );
-
-        } else if (error.name === "NotFoundError") {
-
-            alert(
-                "No camera was found on this device."
-            );
-
-        } else {
-
-            alert(
-                "Unable to access the camera.\n\n" +
-                error.message
-            );
-        }
-    }
+    stopButton.disabled = false;
 }
 
 
-/* ==========================================
-   STOP CAMERA
-========================================== */
-
-function stopCamera() {
-
-    if (cameraStream) {
-
-        cameraStream.getTracks().forEach(track => {
-            track.stop();
-        });
-
-        cameraStream = null;
-    }
-
-
-    video.srcObject = null;
-
-    video.style.display = "none";
-
-    placeholder.style.display = "flex";
-
-
-    /* Update interface */
+function setCameraOffline() {
 
     cameraStatus.textContent = "STANDBY";
 
@@ -181,11 +92,195 @@ function stopCamera() {
 
     cameraIndicator.style.background = "#555b5e";
 
-
-    /* Button states */
-
     startButton.disabled = false;
+
     stopButton.disabled = true;
+}
+
+
+/* ==========================================
+   START CAMERA
+========================================== */
+
+async function startCamera() {
+
+    console.log("SENTINEL: Camera start requested");
+
+
+    /* Browser compatibility check */
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+        alert(
+            "Camera access is not supported by this browser."
+        );
+
+        return;
+    }
+
+
+    /* Prevent multiple streams */
+
+    if (cameraStream) {
+
+        console.log("SENTINEL: Camera already running");
+
+        return;
+    }
+
+
+    try {
+
+        console.log("SENTINEL: Requesting camera permission");
+
+
+        /*
+         * Request access to the device camera.
+         *
+         * No microphone access is requested.
+         */
+
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: true,
+
+                audio: false
+
+            });
+
+
+        console.log(
+            "SENTINEL: Camera permission granted"
+        );
+
+
+        /*
+         * Send the camera stream
+         * into the video element.
+         */
+
+        video.srcObject = cameraStream;
+
+        video.style.display = "block";
+
+        placeholder.style.display = "none";
+
+
+        /*
+         * Start playback.
+         */
+
+        try {
+
+            await video.play();
+
+        } catch (playError) {
+
+            console.warn(
+                "Video autoplay warning:",
+                playError
+            );
+
+        }
+
+
+        setCameraOnline();
+
+
+    } catch (error) {
+
+        console.error(
+            "SENTINEL: Camera error",
+            error
+        );
+
+
+        /*
+         * Reset stream reference.
+         */
+
+        cameraStream = null;
+
+
+        /*
+         * Show a useful error to the user.
+         */
+
+        if (error.name === "NotAllowedError") {
+
+            alert(
+                "Camera access was blocked.\n\n" +
+                "Please click the camera icon in Edge's " +
+                "address bar and allow camera access for Sentinel."
+            );
+
+        }
+
+        else if (error.name === "NotFoundError") {
+
+            alert(
+                "No camera was detected on this device."
+            );
+
+        }
+
+        else if (error.name === "NotReadableError") {
+
+            alert(
+                "The camera is already being used by another application."
+            );
+
+        }
+
+        else {
+
+            alert(
+                "Unable to access the camera.\n\n" +
+                "Error: " +
+                error.name
+            );
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   STOP CAMERA
+========================================== */
+
+function stopCamera() {
+
+    console.log("SENTINEL: Stopping camera");
+
+
+    if (cameraStream) {
+
+        cameraStream
+            .getTracks()
+            .forEach(track => {
+
+                track.stop();
+
+            });
+
+    }
+
+
+    cameraStream = null;
+
+    video.srcObject = null;
+
+    video.style.display = "none";
+
+    placeholder.style.display = "flex";
+
+
+    setCameraOffline();
+
 }
 
 
@@ -193,24 +288,33 @@ function stopCamera() {
    BUTTON EVENTS
 ========================================== */
 
-startButton.addEventListener("click", startCamera);
+startButton.addEventListener(
+    "click",
+    startCamera
+);
 
-stopButton.addEventListener("click", stopCamera);
+stopButton.addEventListener(
+    "click",
+    stopCamera
+);
 
 
 /* ==========================================
-   CLEANUP
+   PAGE CLEANUP
 ========================================== */
 
-window.addEventListener("beforeunload", () => {
+window.addEventListener(
+    "beforeunload",
+    () => {
 
-    if (cameraStream) {
+        if (cameraStream) {
 
-        cameraStream.getTracks().forEach(track => {
-            track.stop();
-        });
+            cameraStream
+                .getTracks()
+                .forEach(track => track.stop());
+
+        }
 
     }
-
-});
+);
 ```
