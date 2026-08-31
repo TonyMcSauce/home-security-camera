@@ -1,0 +1,266 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sentinel // Home Security</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-mark">
+                    <span></span>
+                </div>
+
+                <div>
+                    <div class="brand-name">SENTINEL</div>
+                    <div class="brand-subtitle">HOME SECURITY</div>
+                </div>
+            </div>
+
+            <nav class="navigation">
+
+                <div class="nav-label">MONITORING</div>
+
+                <button class="nav-item active">
+                    <span class="nav-icon">◉</span>
+                    Live Cameras
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">⌁</span>
+                    Activity
+                </button>
+
+                <div class="nav-label second">SYSTEM</div>
+
+                <button class="nav-item">
+                    <span class="nav-icon">◈</span>
+                    Devices
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">⚙</span>
+                    Settings
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-state">
+                    <span class="state-dot"></span>
+                    <div>
+                        <strong>System Online</strong>
+                        <small>Local monitoring</small>
+                    </div>
+                </div>
+
+                <div class="version">
+                    SENTINEL / v0.1
+                </div>
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <!-- TOP BAR -->
+            <header class="topbar">
+
+                <div>
+                    <div class="eyebrow">SECURITY CONSOLE</div>
+                    <h1>Live Monitoring</h1>
+                </div>
+
+                <div class="topbar-right">
+
+                    <div class="clock">
+                        <span id="currentTime">--:--:--</span>
+                        <small id="currentDate">---</small>
+                    </div>
+
+                    <div class="connection">
+                        <span class="connection-dot"></span>
+                        SECURE
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- CAMERA SECTION -->
+            <section class="camera-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="camera-number">CAM 01</span>
+                        <h2>Primary Camera</h2>
+                    </div>
+
+                    <div class="camera-status">
+                        <span id="statusDot"></span>
+                        <span id="cameraStatus">STANDBY</span>
+                    </div>
+
+                </div>
+
+
+                <!-- CAMERA VIEW -->
+                <div class="camera-frame">
+
+                    <video
+                        id="cameraFeed"
+                        autoplay
+                        playsinline
+                        muted>
+                    </video>
+
+                    <!-- Placeholder shown before camera starts -->
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+
+                        <div class="crosshair">
+                            <span></span>
+                        </div>
+
+                        <div class="placeholder-title">
+                            CAMERA STANDBY
+                        </div>
+
+                        <div class="placeholder-subtitle">
+                            Awaiting local camera authorization
+                        </div>
+
+                    </div>
+
+
+                    <!-- Camera overlay -->
+                    <div class="camera-overlay">
+
+                        <div class="record-indicator">
+                            <span></span>
+                            LIVE
+                        </div>
+
+                        <div class="camera-resolution">
+                            LOCAL DEVICE
+                        </div>
+
+                    </div>
+
+
+                    <div class="camera-corners corner-tl"></div>
+                    <div class="camera-corners corner-tr"></div>
+                    <div class="camera-corners corner-bl"></div>
+                    <div class="camera-corners corner-br"></div>
+
+                    <div class="camera-id">
+                        SENTINEL // CAM-01
+                    </div>
+
+                </div>
+
+
+                <!-- CONTROLS -->
+                <div class="camera-controls">
+
+                    <button class="control-button primary" id="startCamera">
+                        <span class="button-icon">▶</span>
+                        Start Camera
+                    </button>
+
+                    <button class="control-button" id="stopCamera" disabled>
+                        <span class="button-icon">■</span>
+                        Stop Feed
+                    </button>
+
+                    <div class="control-spacer"></div>
+
+                    <div class="feed-info">
+                        <span>FEED</span>
+                        <strong id="feedState">OFFLINE</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SYSTEM CARDS -->
+            <section class="system-grid">
+
+                <div class="info-card">
+                    <div class="card-label">CAMERA</div>
+
+                    <div class="card-main">
+                        <span class="mini-indicator" id="cameraIndicator"></span>
+                        <strong id="cameraCardStatus">Offline</strong>
+                    </div>
+
+                    <div class="card-detail">
+                        Device camera access
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="card-label">NETWORK</div>
+
+                    <div class="card-main">
+                        <span class="mini-indicator online"></span>
+                        <strong>Connected</strong>
+                    </div>
+
+                    <div class="card-detail">
+                        Browser connection active
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="card-label">SECURITY MODE</div>
+
+                    <div class="card-main">
+                        <span class="mini-indicator"></span>
+                        <strong>Disarmed</strong>
+                    </div>
+
+                    <div class="card-detail">
+                        Alarm system inactive
+                    </div>
+                </div>
+
+            </section>
+
+
+            <footer class="main-footer">
+                <span>SENTINEL SECURITY PLATFORM</span>
+                <span>LOCAL DEVICE MODE</span>
+            </footer>
+
+        </main>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+```
